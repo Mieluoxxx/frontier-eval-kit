@@ -1,0 +1,263 @@
+FrontierHarness Eval v1.1.0 全部 62 道题目清单与简介
+====================================================================
+数据集：frontier-harness-eval/frontier-harness-eval@v1.1.0
+说明：全集共 62 题（均为 terminal-bench/*），其中：
+  - tb4  子集（01-17，共 17 题）：全部配独立判分镜像（sep_verifier=True），超时上限 28800s（8 小时）。
+  - tb21 子集（18-62，共 45 题）：与任务容器共用环境判分（sep_verifier=False），超时上限 900s–7200s。
+注：以下简介均基于缓存题包的原始 instruction.md 与官方摘要整理。
+
+--------------------------------------------------------------------
+【tb4 子集（17 题 · 独立判分容器）】
+--------------------------------------------------------------------
+
+[01] terminal-bench/mvcc-lsm-compaction
+     分类：Software | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：8.9m，通过率 22%
+     简介：根据 /app/crash_report.txt 诊断 C++ MVCC LSM 存储引擎压缩后的数据可见性故障，修复 /app/include/mvcc_lsm/ 与 /app/src/（不可靠永久保留旧版本绕过压缩），并在 /app/tests/regression_test.cc 添加确定性回归测试，通过 make -C /app test 验证。
+
+[02] terminal-bench/bun-sourcemap-leak
+     分类：Software | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：15.1m，通过率 0%
+     简介：修复 Bun/TypeScript 应用的发布流水线，使 bun run release 依据 /app/visibility.json 中的 publicSources/privateSources 策略生成 /app/dist，保持公开服务端响应正常且不通过产物或 sourcemap 泄漏私有源码路径与实现细节。
+
+[03] terminal-bench/wal-recovery-ordering
+     分类：Software | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：17.3m，通过率 40%
+     简介：修复 /app/ 下 Python 预写日志（WAL）存储恢复逻辑（保留 /app/app.py 的 make_engine/recover_engine 与 /app/recovery.py 等接口），处理日志顺序与恢复一致性问题，且严禁引入 subprocess、typing.Any、写磁盘、空 except 或新第三方包。
+
+[04] terminal-bench/session-window-debug
+     分类：Software | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：18.6m，通过率 8%
+     简介：参照 /app/app/DESIGN.md 修复 /app/app/ 下的流式会话窗口处理器，解决活跃会话在迟到事件到来时被误清理、迟到事件合并后聚合结果不一致以及多数据源速率差异导致输出卡死的问题。
+
+[05] terminal-bench/ontology-kg-querying
+     分类：Software | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：23.4m，通过率 0%
+     简介：基于 ArcRail 铁路共享 OWL 本体，处理 /app/2024-q2/ 的 RDF/Turtle 申报数据（参考 /app/2024-q1/ 示例），实现 /app/pipeline.py 并编写 /app/cross_border_operational_points.rq、/app/qualified_cross_border_points.rq 等 SPARQL 查询。
+
+[06] terminal-bench/roy-polymorph-cn
+     分类：Science | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：8.2m，通过率 10%
+     简介：分析 /app/data/conf1.mol–conf12.mol（ROY 十二种多晶型晶体结构）和 /app/data/TB3_Conf_Properties.csv 的颜色与腈基 C≡N 伸缩波数数据，拟合物理合理的连续构效关系模型并计算 S–C–N–C 二面角极值等指标。
+
+[07] terminal-bench/gsea-proteomics
+     分类：Science | 资源：4 vCPU / 4096 MB / 28800s | 历史参考：11.3m，通过率 16%
+     简介：基于 /app/data/Full_dataset_curated.xlsx 中 10 个分组（TAR、CTRL 与 EXP_A–EXP_H）以 imput_norm_batchcl_raw_signal_sum_ 开头的定量蛋白质组学数据，用 Broad GSEA CLI 分析各实验处理的显著富集趋势。
+
+[08] terminal-bench/foodstuff-beta-activity
+     分类：Science | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：14.7m，通过率 0%
+     简介：结合 /app/data/ 下的 measurement data.xls、sample.xls 与 Sr-90_tables.pdf（以 Sr-90 为标准源与已知本底），计算食品液体闪烁计数样本的探测效率、体积因子、质量因子、检出限（Bq/kg）与 β 活度浓度（Bq/kg）。
+
+[09] terminal-bench/glycan-ms2-elucidation
+     分类：Science | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：21.6m，通过率 0%
+     简介：解析 /app/data/unknown_spectrum.xlsx 中未知 IgG N-糖链的负离子高分辨 LC-MS/MS 谱图，按 /app/data/output_format.txt 要求报告中性糖链的前体电荷态、离子形式、中性单同位素质量、分子式和规范名称。
+
+[10] terminal-bench/embedding-drift-monitor
+     分类：ML | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：21.4m，通过率 30%
+     简介：修复 /app/drift_monitor/ 下使用 KS、PSI、MMD 检验与防抖逻辑检测向量漂移的完整生产模块（搭配 /app/data/ 中的参考分布及窗口 .npy 数据），同时修复底层统计/距离计算和告警状态抖动缺陷。
+
+[11] terminal-bench/batched-eval-parity
+     分类：ML | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：32.8m，通过率 46%
+     简介：修复 /app/evalbench/evaluate.py 及其依赖模块，使批量评测输出与 /app/model/ 的单样本推理语义严格一致，正确处理 fewshot_refs 拼接、重复 ID 按输入位次还原以及多选题 answer/full/marked 三种计分方式。
+
+[12] terminal-bench/vpp-loss-divergence
+     分类：ML | 资源：2 vCPU / 8192 MB / 28800s | 历史参考：35.4m，通过率 34%
+     简介：排查并修复已安装的底层框架代码，使 /app/pretrain.py 执行原始 /app/config.py 输出到 /app/output/loss_trace.pt 的训练 loss 曲线在 torch.allclose(atol=1e-5, rtol=1e-5) 内对齐参考基线（严禁靠修改配置或作弊通过）。
+
+[13] terminal-bench/cargo-flight-dispatch
+     分类：Operations | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：15.3m，通过率 0%
+     简介：修复货运航空签派计划器在更新后出现的燃油估算错误、超重放行及进近侧风限制失效 Bug，需正确结合 /app/data/airports.json（真北航向/磁差/跑道风况）与 /app/data/aircraft.json 机型性能参数。
+
+[14] terminal-bench/intrastat-meldung
+     分类：Operations | 资源：2 vCPU / 8192 MB / 28800s | 历史参考：16.6m，通过率 48%
+     简介：按 /shared/sop/ 内部操作规程及 /shared/credentials/endpoints.yaml 凭据，逐行核查并修正 ERP 隔夜生成的 Intrastat 月度草稿申报单中的数据偏差，完成 outgoing_goods 与 incoming_goods 双向申报与归档。
+
+[15] terminal-bench/freecad-impeller
+     分类：Hardware | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：31.2m，通过率 2%
+     简介：编写 FreeCAD Python 脚本 /app/answer.py，生成参数化 PartDesign Body 特征树驱动（禁止烘焙 TopoShape）的半开式扭转叶片叶轮模型：/app/answer_base.FCStd（12 叶片）与 /app/answer_edit.FCStd（仅改 num_blades=6）。
+
+[16] terminal-bench/html-js-filter
+     分类：Security | 资源：2 vCPU / 8192 MB / 28800s | 历史参考：39.9m，通过率 24%
+     简介：编写 /app/filter.py（以 HTML 路径为 argv[1] 就地修改），彻底移除所有 JavaScript 以防御 XSS 攻击，同时最大限度保留合法 HTML 标签、结构、非危险属性与格式。
+
+[17] terminal-bench/music-harmony
+     分类：Media | 资源：2 vCPU / 4096 MB / 28800s | 历史参考：42.4m，通过率 2%
+     简介：为 /app/Harmony.pdf 中的乐谱片段按巴赫圣咏风格补全四部和声（SATB，禁用和弦外音、延留音与半音化），并用 MusicXML <harmony>/<function> 嵌入罗马数字和声标注，输出为 /app/harmony.mxl。
+
+--------------------------------------------------------------------
+【tb21 子集（45 题 · 共享任务容器判分）】
+--------------------------------------------------------------------
+
+[18] terminal-bench/log-summary-date-ranges
+     分类：data-processing | 资源：1 vCPU / 2048 MB / 900s
+     简介：解析 /app/logs 下按 YYYY-MM-DD_<source>.log 命名的日志文件，统计今日、近 7 天、近 30 天、本月至今与总计 5 个时间窗中 ERROR、WARNING、INFO 三类事件数量，写入 /app/summary.csv。
+
+[19] terminal-bench/regex-log
+     分类：data-processing | 资源：1 vCPU / 2048 MB / 900s
+     简介：编写并保存一个正则表达式，用于匹配含合法无前导零 IPv4 地址日志行中最后出现的 YYYY-MM-DD 日期（2 月统一按最多 29 天算，且日期和 IPv4 前后均不可紧邻字母或数字）。
+
+[20] terminal-bench/sparql-university
+     分类：data-querying | 资源：1 vCPU / 2048 MB / 900s
+     简介：基于知识图谱 /app/university_graph.ttl（基准日期设为 2025-08-16），编写 SPARQL 查询找出满足全部条件的全职教授：任职于欧盟国家大学，且所在任一院系当前开授课程中有超过 10 名在读学生。
+
+[21] terminal-bench/hf-model-inference
+     分类：data-science | 资源：1 vCPU / 2048 MB / 900s
+     简介：下载 Hugging Face 情感分析模型 distilbert-base-uncased-finetuned-sst-2-english 至 /app/model_cache/sentiment_model，并用 Flask 在 0.0.0.0:5000 后台运行 POST /sentiment 接口返回情感类别与置信度。
+
+[22] terminal-bench/mteb-leaderboard
+     分类：data-science | 资源：1 vCPU / 8192 MB / 3600s
+     简介：查询截至 2025 年 8 月的斯堪的纳维亚语（Scandinavian）MTEB 排行榜，找出覆盖全部基准任务且 Mean (Task) 分数最高的嵌入模型（organization/model_name 格式），写入 /app/result.txt。
+
+[23] terminal-bench/rstan-to-pystan
+     分类：data-science | 资源：4 vCPU / 8192 MB / 1800s
+     简介：安装 PyStan 3.10.0，阅读 /app/gp_rstan.R 的 Stan 模型结构与超参数并读取 /app/train_X.csv 等数据，编写功能等价的 Python 后验采样脚本 /app/pystan_analysis.py。
+
+[24] terminal-bench/sam-cell-seg
+     分类：data-science | 资源：1 vCPU / 4096 MB / 7200s
+     简介：使用轻量分割模型 MobileSAM（GitHub: ChaoningZhang/MobileSAM），将组织病理切片（参考 /app/demo_rgb.png 与 /app/demo_metadata.csv）中的矩形框细胞掩膜全部转换为精细多边形折线掩膜。
+
+[25] terminal-bench/merge-diff-arc-agi-task
+     分类：debugging | 资源：1 vCPU / 4096 MB / 900s
+     简介：在 /app/repo 初始化 Git 仓库，分别从 /app/bundle1.bundle 与 /app/bundle2.bundle 拉取检出 branch1 和 branch2（若 HEAD 有歧义需自查 bundle ref），再以 branch1 为基础合并 branch2。
+
+[26] terminal-bench/sqlite-db-truncate
+     分类：debugging | 资源：1 vCPU / 2048 MB / 900s
+     简介：从遭到二进制截断损坏的 SQLite 数据库 /app/trunc.db 中尽可能抢救数据记录，并按 [{"word": "...", "value": N}, ...] 格式输出至 /app/recover.json。
+
+[27] terminal-bench/gcode-to-text
+     分类：file-operations | 资源：1 vCPU / 2048 MB / 900s
+     简介：分析适用于 Prusa MK4s 打印机的切片文件 text.gcode，反演出其将在已有物体上打印出的具体文字内容，并将结果写入 /app/out.txt。
+
+[28] terminal-bench/large-scale-text-editing
+     分类：file-operations | 资源：1 vCPU / 2048 MB / 1200s
+     简介：编写总按键数不超过 200 次的 Vim 宏脚本 /app/apply_macros.vim（仅允许使用 setreg 定义 a/b/c 三个非空寄存器、:%normal! @x 及保存退出指令），将 100 万行的 /app/input.csv 精确变换为 /app/expected.csv。
+
+[29] terminal-bench/chess-best-move
+     分类：games | 资源：1 vCPU / 2048 MB / 900s
+     简介：识别棋盘图片 chess_board.png 中的当前局面（轮到白方走棋），求出所有最优制胜走法并按 [src][dst] 格式（如 e2e4）逐行写入 /app/move.txt。
+
+[30] terminal-bench/caffe-cifar-10
+     分类：machine-learning | 资源：4 vCPU / 8192 MB / 3600s
+     简介：克隆 BVLC Caffe 1.0.0 至 /app/caffe 并仅编出 CPU 版本，使用 examples/cifar10/cifar10_quick_solver.prototxt 训练恰好 500 步，保存模型文件并验证测试精度高于 45% 且与训练精度差距不超 5%，日志写入 /app/caffe/training_output.txt。
+
+[31] terminal-bench/feal-linear-cryptanalysis
+     分类：mathematics | 资源：1 vCPU / 2048 MB / 1800s
+     简介：分析 /app/feal.c（4 轮子密钥均源自 20 位种子的类 FEAL 加密算法），利用 /app/pairs.txt 中 32 组已知明密文对实施线性密码分析恢复密钥，解密 /app/ciphertexts.txt 并写入 /app/plaintexts.txt。
+
+[32] terminal-bench/model-extraction-relu-logits
+     分类：mathematics | 资源：1 vCPU / 2048 MB / 900s
+     简介：给定可查询但输出单一浮点数的 10 维输入单隐藏层 ReLU 网络 forward.py（A2*ReLU(A1*x+b1)+b2），编写 /app/steal.py 通过黑盒查询还原隐藏层权重矩阵 A1（允许置换与缩放等价）存至 /app/stolen_A1.npy。
+
+[33] terminal-bench/pytorch-model-cli
+     分类：model-training | 资源：1 vCPU / 2048 MB / 900s
+     简介：实现用于 MNIST 数字识别的独立命令行可执行工具 /app/cli_tool（支持 ./cli_tool weights.json image.png 仅输出 0–9 数字），并在 /app 交付 cli_tool、weights.json 及 prediction.txt。
+
+[34] terminal-bench/pytorch-model-recovery
+     分类：model-training | 资源：1 vCPU / 2048 MB / 900s
+     简介：解析权重字典 /app/weights.pt 重建精确匹配的 PyTorch RecoveredModel 类并加载原权重，评估在 /app/dataset.pt 上的 MSE 损失后，仅微调 output_layer 权重以进一步降低 MSE。
+
+[35] terminal-bench/portfolio-optimization
+     分类：optimization | 资源：1 vCPU / 4096 MB / 3600s
+     简介：对比嵌套循环基线 portfolio_baseline.py，补全 portfolio_optimized.c 与 portfolio_optimized.py 实现高性能 C 组合风险（sqrt(x^T*S*x)）与收益计算，支持最高 8000 资产、数值误差 <1e-10 且 5000+ 资产提速 >=1.2 倍。
+
+[36] terminal-bench/constraints-scheduling
+     分类：personal-assistant | 资源：1 vCPU / 2048 MB / 1200s
+     简介：读取 3 份 ICS 日历日程并综合 Alice、Bob、Carol 在 2024 年 1 月 15–19 日工作时间内的偏好与硬性限制（午休、提前离岗、会后缓冲时间等），为三人安排出可行的 1 小时会议窗口。
+
+[37] terminal-bench/adaptive-rejection-sampler
+     分类：scientific-computing | 资源：1 vCPU / 2048 MB / 900s
+     简介：按 Gilks et al. (1992) 实现自适应拒绝采样器（ARS），支持向量化对数/未归一化密度函数输入（如 R 的 dnorm）、参数合法性检查、采样过程非对数凹性拦截以及对照已知真实分布的形式化测试。
+
+[38] terminal-bench/dna-assembly
+     分类：scientific-computing | 资源：1 vCPU / 2048 MB / 1800s
+     简介：读取 sequences.fasta 中的环状质粒 input 及 egfp、flag、snap 片段与目标质粒 output，设计用于 NEBridge Golden Gate（BsaI-HF v2）一步拼接的带酶切位点 PCR 扩增引物。
+
+[39] terminal-bench/dna-insert
+     分类：scientific-computing | 资源：1 vCPU / 4096 MB / 1800s
+     简介：读取 sequences.fasta 中的输入与目标环状质粒序列，遵循 NEB Q5 定点突变规则（退火区长度 15–45nt、Tm 58–72°C、正反引物 Tm 差 <=5°C 等）设计转换所需引物。
+
+[40] terminal-bench/tune-mjcf
+     分类：scientific-computing | 资源：1 vCPU / 2048 MB / 900s
+     简介：在不篡改 /app/model_ref.xml 与物理属性的前提下优化 MuJoCo 模型为 /app/model.xml（可借 /app/eval.py 迭代），使仿真 2 秒耗时降至原模型 60% 以下且完整物理状态在 atol=1e-5 内一致。
+
+[41] terminal-bench/filter-js-from-html
+     分类：security | 资源：1 vCPU / 8192 MB / 1800s
+     简介：编写 /app/filter.py（接收 HTML 文件路径 argv[1] 就地清洗），删除一切可触发 XSS 的 JavaScript 代码与危险片段，同时保持正常 HTML 标签、格式与非危险属性完整。
+
+[42] terminal-bench/fix-code-vulnerability
+     分类：security | 资源：1 vCPU / 2048 MB / 900s
+     简介：审计 /app/bottle.py（Python Bottle 单文件 Web 框架仓库）代码安全隐患，依据 CWE 标准完成漏洞定位与修复，并在 /app/report.jsonl 提交对应 CWE 漏洞报告。
+
+[43] terminal-bench/openssl-selfsigned-cert
+     分类：security | 资源：1 vCPU / 2048 MB / 900s
+     简介：用 OpenSSL 在 /app/ssl/ 下创建 2048 位 RSA 私钥（server.key，权限 600）、有效期 365 天且 O="DevOps Team"、CN="dev-internal.company.local" 的自签名证书（server.crt）及合并的 server.pem 并校验通过。
+
+[44] terminal-bench/vulnerable-secret
+     分类：security | 资源：1 vCPU / 2048 MB / 900s
+     简介：分析并逆向或交互探测给定的可执行程序，提取隐藏在其中的 FLAG{...} 秘密字符串，写入 /app/results.txt。
+
+[45] terminal-bench/cancel-async-tasks
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：在 /app/run.py 实现带并发上限控制的异步调度函数 run_tasks(tasks, max_concurrent)，确保在收到 KeyboardInterrupt 取消信号时各异步任务自身的清理代码块依然能够完整执行。
+
+[46] terminal-bench/circuit-fibsqrt
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 3600s
+     简介：为逻辑门模拟器 /app/sim.c 编写少于 32,000 行的布尔门网表 /app/gates.txt，使运行 /app/sim N 经过 32000 步模拟后在 stdout 输出 fib(isqrt(N)) % (2^32)。
+
+[47] terminal-bench/code-from-image
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 1200s
+     简介：识读图片 /app/code.png 中的伪代码逻辑，用任意编程语言实现其等价程序并把最终输出写入 /app/output.txt（提示：正确结果以 bee26a 开头）。
+
+[48] terminal-bench/fix-git
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：用户修改个人网站后切换回 master 分支导致改动消失（游离 HEAD 提交），需找回隐藏的提交内容并正确合并回 master 分支。
+
+[49] terminal-bench/fix-ocaml-gc
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 3600s
+     简介：修复被改坏的 OCaml 主堆游程压缩清扫式垃圾回收器 Bug，解决编译器自举阶段崩溃问题，使基础测试套件 make -C testsuite one DIR=tests/basic 正常通过（可参考 HACKING.adoc 构建）。
+
+[50] terminal-bench/kv-store-grpc
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：系统级安装 grpcio 1.73.0 与 grpcio-tools 1.73.0，编写定义 KVStore（含 GetVal、SetVal 两个 RPC）的 /app/kv-store.proto 并运行基于 Python dict 的 gRPC 键值存储服务。
+
+[51] terminal-bench/make-doom-for-mips
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：基于 /app/doomgeneric/ 源码与自定义输出到 /tmp/frame.bmp 的 doomgeneric_img.c，交叉编译生成 MIPS ELF 可执行文件 doomgeneric_mips，使 node vm.js 能成功加载运行并渲染输出帧。
+
+[52] terminal-bench/path-tracing-reverse
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 1800s
+     简介：通过黑盒输入输出观察或反编译逆向 /app/mystery，写出完全独立（禁止调用 ./mystery）且 gzip 压缩体积小于 2KB 的 C 程序 /app/mystery.c，使静态编译（gcc -static -o reversed mystery.c -lm）后执行效果完全等价。
+
+[53] terminal-bench/polyglot-c-py
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：编写单个多义（Polyglot）源文件 /app/polyglot/main.py.c，使其既可直接用 python3（3.12.3）运行，也可用 gcc（13.2.0）编译执行，两种方式均输出第 K 个斐波那契数（f(0)=0, f(1)=1）。
+
+[54] terminal-bench/polyglot-rust-c
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：编写单个多义（Polyglot）源文件 /app/polyglot/main.rs，使其既可用 rustc 1.75.0 编译执行，也可用 g++ 13.2.0（-x c++）编译执行，两种方式均输出第 K 个斐波那契数（f(0)=1, f(1)=1）。
+
+[55] terminal-bench/prove-plus-comm
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：补全 Coq 文件 plus_comm.v 中自然数加法交换律（forall n m : nat, n + m = m + n）的半成品归纳证明策略，并用 coqc 成功编译出 plus_comm.vo。
+
+[56] terminal-bench/pypi-server
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 900s
+     简介：构建打包 0.1.0 版本的 vectorops Python 包（根 __init__.py 暴露 dotproduct(a, b) 点积函数），并在本地 8080 端口部署 PyPI 服务使 pip install --index-url 能正常安装调用。
+
+[57] terminal-bench/schemelike-metacircular-eval
+     分类：software-engineering | 资源：1 vCPU / 2048 MB / 2400s
+     简介：编写匹配 interp.py 所实现类 Scheme 语言的元循环求值器 eval.scm：首行从 STDIN 读取目标 .scm 路径并把剩余输入转发给被解释程序，能跑通 test/ 全部测试程序及自举解释 eval.scm 自身。
+
+[58] terminal-bench/install-windows-3.11
+     分类：system-administration | 资源：2 vCPU / 4096 MB / 3600s
+     简介：使用 QEMU（以 snapshot 只读底盘模式）启动 /app/isos/win311.img（Windows 3.11），配置 VNC display :1（端口 5901）、Nginx 80 端口 Web 远程访问以及 /tmp/qemu-monitor.sock 以允许程序化输入控制。
+
+[59] terminal-bench/mailman
+     分类：system-administration | 资源：1 vCPU / 2048 MB / 1800s
+     简介：配置已安装的 Postfix 与 Mailman3 搭建邮件列表服务 reading-group@local.edu（配置文件存 /etc/mailman3/mailman.cfg），实现入组（-join）、退组（-leave）和群发公告并投递到 /var/mail/<username>。
+
+[60] terminal-bench/nginx-request-logging
+     分类：system-administration | 资源：1 vCPU / 2048 MB / 900s
+     简介：安装并配置 Nginx 监听 8080 端口服务 /var/www/html 静态资源，配置含双引号 User-Agent 等字段的访问日志 /var/log/nginx/benchmark-access.log 与错误日志，并设置 10MB 内存区、单 IP 10 req/s（burst=10）的限流规则。
+
+[61] terminal-bench/sqlite-with-gcov
+     分类：system-administration | 资源：1 vCPU / 2048 MB / 900s
+     简介：使用预置离线源码归档 /app/vendor/sqlite-fossil-release.tar.gz（禁止联网拉源码）在 /app/sqlite 编译开启 gcov 覆盖率插桩的 SQLite 可执行文件并使其在 PATH 中可用。
+
+[62] terminal-bench/video-processing
+     分类：video-processing | 资源：1 vCPU / 2048 MB / 3600s
+     简介：仅使用 toml、cv2 与 numpy 编写 /app/jump_analyzer.py（参考开发样例 /app/example_video.mp4），分析固定机位与跨栏位置的运动员跳栏 MP4 视频并输出约定结构与字段的 TOML 成绩报告。

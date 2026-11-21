@@ -1,0 +1,42 @@
+# Harbor runtime state, task cache, and evaluation outputs (jobs contain API keys)
+.harbor-home/
+jobs/
+
+# Prebuilt Linux binaries in vendor/ (keep vendor/checksums.txt for verification)
+vendor/bin/
+vendor/*.tar.gz
+vendor/*.tgz
+vendor/*.zip
+
+# Runtime logs and PID files
+*.pid
+*.log
+
+# Local environment files and secrets
+.env
+.env.*
+*.env
+!.env.example
+!.env.template
+*.secret
+*.key
+*.pem
+
+# Python caches and local virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS and editor metadata
+.DS_Store
+._*
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

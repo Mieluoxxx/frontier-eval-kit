@@ -1,0 +1,4 @@
+f0702f5d2fd3c8fbfa84a32f35a3d9faa908380f6b04acda7005a52a5da952d6  mizar-v0.1.5-aarch64-apple-darwin.tar.gz
+c3e6b2a63c975d2682d34b36178a4eccef2fead0e3a6f1f7818f5315d28bb688  mizar-v0.1.5-aarch64-unknown-linux-gnu.tar.gz
+326ce79fff19ad7d622f81410875f967d98629f09372a1cf96e43c269e00286c  mizar-v0.1.5-x86_64-apple-darwin.tar.gz
+cc498951d32880e6ccd753b295cbf0731cf82a6c3505d3f38284934806027128  mizar-v0.1.5-x86_64-unknown-linux-gnu.tar.gz
